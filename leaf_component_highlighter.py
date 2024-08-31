@@ -47,7 +47,8 @@ for file in os.scandir(DATA_DIR_PATH):
         draw = ImageDraw.Draw(cur_png)
         continue
     
-    # Try catch is used in case there are errors in the xml file that prevent parsing.
+    # Try catch is used in case there are errors in the xml file that prevent parsing. There was an error in com.apalon.ringtones.xml
+    # but I have manually fixed the error so that the corresponding screenshot can be annotated.
     try:
         if ".xml" in file.path:
             tree = ET.parse(file.path)
