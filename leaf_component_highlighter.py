@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 def normalize_coords(coords_list):
     normalized = []
     for area in coords_list:
-        # Regex is used to split the string coordinates into just the raw numbers
+        # re.split is used to split the string coordinates into just the raw numbers using multiple delimiters
         temp = re.split("\[|,|\]", area)
 
         # This loop attempts to remove every blank cell left over from the re.split() until there are none left
@@ -46,14 +46,15 @@ for file in os.scandir(DATA_DIR_PATH):
         cur_png = Image.open(file.path)
         draw = ImageDraw.Draw(cur_png)
         continue
-    
-    # Try catch is used in case there are errors in the xml file that prevent parsing. There was an error in com.apalon.ringtones.xml
-    # but I have manually fixed the error so that the corresponding screenshot can be annotated.
-    try:
-        if ".xml" in file.path:
+
+    if ".xml" in file.path:
+        all_bounds = []
+
+        # Try catch is used in case there are errors in the xml file that prevent parsing. If errors are present, 
+        # we will manually parse through the file to find the leaf components
+        try:
             tree = ET.parse(file.path)
             root = tree.getroot()
-            all_bounds = []
 
             # For every node in the tree, if they have no children then it is a leaf node, so we append
             # the bounds of this component to the list of bounds as a string
@@ -61,19 +62,42 @@ for file in os.scandir(DATA_DIR_PATH):
                 if list(node) == []:
                     all_bounds.append(node.attrib.get("bounds"))
 
-            # normalize_coords() will convert all_bounds from a list of string coordinates to a list of tuple coordinates, 
-            # since draw.rectangle requires the coordinates to be in tuple format.
-            all_bounds = normalize_coords(all_bounds)
+        # If there is an error in the xml file prevents automatic parsing, then we manually parse through the file
+        # by splitting the xml file up by all node related delimiters, so each item in the list corresponds to a node
+        # in the xml file.  If the class of the compoent is a ViewGrup, RecyclerView, or Layout, then we assume that node 
+        # does not represent anything on the page and do not record the bounds.  If the class is anything else, then we 
+        # assume the component is present in the screenshot visually, and record the bounds of the component for highlighting.
+        except:
+            with open(file.path, "r") as corrupt_file:
+                # Reading the file into a single string and splitting into a list
+                split_file = corrupt_file.read()
+                split_file = re.split("<node |>|/>|</node>",split_file)
 
-            # Iterate through each set of leaf component coordinates and highlight
-            for area in all_bounds:
-                draw.rectangle( xy = area,
-                                fill = None, #clear fill
-                                outline = (255,255,0), #yellow outline
-                                width = 8)
-                
-            # Save the file to output directory
-            cur_png.save(".\output\\" + filename[:-3] + "png")
-    except:
-        print("Error in " + filename)
+                for node in split_file:
+                    # If node does not have a class tag, then it is not important for highlighting and can be skipped
+                    try:
+                        component_class = node.split("class=\"")[1].split("\"")[0]
+                    except:
+                        continue
+                    # If node does have a class tag, then check if it is an important class or not
+                    if "Layout" in component_class or ".ViewGroup" in component_class or "RecyclerView" in component_class:
+                        continue
+                    # If this line is reached then the current node is important and should be highlighted, so bounds are recorded here
+                    leaf_bound = node.split("bounds=\"")[1].split("\"")[0]
+                    all_bounds.append(leaf_bound)
+
+        # normalize_coords() will convert all_bounds from a list of string coordinates to a list of tuple coordinates, 
+        # since draw.rectangle requires the coordinates to be in tuple format.
+        all_bounds = normalize_coords(all_bounds)
+
+        # Iterate through each set of leaf component coordinates and highlight
+        for area in all_bounds:
+            draw.rectangle( xy = area,
+                            fill = None, #clear fill
+                            outline = (255,255,0), #yellow outline
+                            width = 8)
+            
+        # Save the file to output directory
+        cur_png.save(".\output\\" + filename[:-3] + "png")
+
         
