@@ -25,35 +25,45 @@ def normalize_coords(coords_list):
     return normalized
 
 # Creating the directory for the fully highlighted screenshots
-if not os.path.isdir(".\output"): os.makedirs(".\output")
+if not os.path.isdir("output"): os.makedirs("output")
 
 # This checks to make sure the output directory is clear
-for file in os.scandir(".\output"):
+for file in os.scandir("output"):
     os.remove(file)
 
-DATA_DIR_PATH = ".\Programming-Assignment-Data\\"
+DATA_DIR_PATH = "Programming-Assignment-Data/"
 
-# Scan through each file in the dir alphabetically.  If a png is found, then set it as the current png and continue. 
-# If the xml file for that png is found, parse through the xml to highlight all of the leaf components.  Then saves highlighted
-# png to output directory.
-for file in os.scandir(DATA_DIR_PATH):
+#Scan through each file in the dir and sort them alphabetically
+with os.scandir(DATA_DIR_PATH) as files:
+    sorted_files = sorted(files, key=lambda entry: entry.name)
+    print(sorted_files)
+    sorted_names = [entry.name for entry in sorted_files]
+    print(sorted_names)
 
-    filename = file.path.split(DATA_DIR_PATH)[1]
+# Iterate through the files in the data directory using the alphabetically sorted list.  If a png is found, then set it as the 
+# current png and continue. If the xml file for that png is found, parse through the xml to highlight all of the leaf components.  
+# Then saves highlighted png to output directory.
+for file in sorted_names:
+
+    # filename = file.split(DATA_DIR_PATH)[1]
+    filepath = DATA_DIR_PATH + file
+    print(filepath)
     
-    # For each png/xml pair, the png will always be found first by os.scandir(). If this if statement is entered then
-    # we know we are on a new png/xml pair, so it will change the current png and advance to the for loop to the next file.
-    if ".png" in file.path:
-        cur_png = Image.open(file.path)
+    # For each png/xml pair, the png will always be found first because we sorted the files alphabetically. If this if statement 
+    # is entered then we know we are on a new png/xml pair, so it will change the current png and advance to the for loop to the 
+    # next file.
+    if ".png" in file:
+        cur_png = Image.open(filepath)
         draw = ImageDraw.Draw(cur_png)
         continue
 
-    if ".xml" in file.path:
+    if ".xml" in file:
         all_bounds = []
 
         # Try catch is used in case there are errors in the xml file that prevent parsing. If errors are present, 
         # we will manually parse through the file to find the leaf components
         try:
-            tree = ET.parse(file.path)
+            tree = ET.parse(filepath)
             root = tree.getroot()
 
             # For every node in the tree, if they have no children then it is a leaf node, so we append
@@ -68,7 +78,8 @@ for file in os.scandir(DATA_DIR_PATH):
         # does not represent anything on the page and do not record the bounds.  If the class is anything else, then we 
         # assume the component is present in the screenshot visually, and record the bounds of the component for highlighting.
         except:
-            with open(file.path, "r") as corrupt_file:
+            print(filepath)
+            with open(filepath, "r") as corrupt_file:
                 # Reading the file into a single string and splitting into a list
                 split_file = corrupt_file.read()
                 split_file = re.split("<node |>|/>|</node>",split_file)
@@ -98,6 +109,6 @@ for file in os.scandir(DATA_DIR_PATH):
                             width = 8)
             
         # Save the file to output directory
-        cur_png.save(".\output\\" + filename[:-3] + "png")
+        cur_png.save("output/" + file[:-3] + "png")
 
         
