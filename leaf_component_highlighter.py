@@ -43,7 +43,6 @@ with os.scandir(DATA_DIR_PATH) as files:
 # Then saves highlighted png to output directory.
 for file in sorted_names:
 
-    # filename = file.split(DATA_DIR_PATH)[1]
     filepath = DATA_DIR_PATH + file
     
     # For each png/xml pair, the png will always be found first because we sorted the files alphabetically. If this if statement 
