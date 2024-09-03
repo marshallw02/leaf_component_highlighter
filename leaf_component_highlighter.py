@@ -36,9 +36,7 @@ DATA_DIR_PATH = "Programming-Assignment-Data/"
 #Scan through each file in the dir and sort them alphabetically
 with os.scandir(DATA_DIR_PATH) as files:
     sorted_files = sorted(files, key=lambda entry: entry.name)
-    print(sorted_files)
     sorted_names = [entry.name for entry in sorted_files]
-    print(sorted_names)
 
 # Iterate through the files in the data directory using the alphabetically sorted list.  If a png is found, then set it as the 
 # current png and continue. If the xml file for that png is found, parse through the xml to highlight all of the leaf components.  
@@ -47,7 +45,6 @@ for file in sorted_names:
 
     # filename = file.split(DATA_DIR_PATH)[1]
     filepath = DATA_DIR_PATH + file
-    print(filepath)
     
     # For each png/xml pair, the png will always be found first because we sorted the files alphabetically. If this if statement 
     # is entered then we know we are on a new png/xml pair, so it will change the current png and advance to the for loop to the 
@@ -78,7 +75,6 @@ for file in sorted_names:
         # does not represent anything on the page and do not record the bounds.  If the class is anything else, then we 
         # assume the component is present in the screenshot visually, and record the bounds of the component for highlighting.
         except:
-            print(filepath)
             with open(filepath, "r") as corrupt_file:
                 # Reading the file into a single string and splitting into a list
                 split_file = corrupt_file.read()
