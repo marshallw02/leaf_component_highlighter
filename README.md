@@ -5,7 +5,7 @@ xml file.  To run this program, the screenshot and xml pairs should have the sam
 the extension is either .xml or .png.  
 
 This program uses the Pillow library to highlight the screenshots.  To install the required package, use the command line to cd into the directory 
-with this project and type "pip install -r requirements.txt" into the command line terminal.
+with this project and type "pip install -r requirements.txt" into the command line terminal. Also, this program must be run on **Python 3.8-3.12**.
 
 To run this program, all of the screenshot/xml pairs should be placed into the directory named "Programming-Assignment-Data", then make 
 sure that leaf_component_highlighter.py and /Programming-Assignment-Data/ are in the same directory.  Once ran, 
