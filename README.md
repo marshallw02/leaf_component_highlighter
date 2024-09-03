@@ -21,6 +21,6 @@ components of the xml file as a tree, making it easy to identify which component
 the built in Python xml parser instead of my manual parsing to reduce the risk of error.  The file is split up by all node delimiters and each node 
 with a class tag that is not a layout or viewgroup of some sort is highlighted.  The layouts and viewgroups do not need to be highlighted 
 because these components traditionally group other components together so we know they shouldn't be a leaf-level component themselves.  
-Once all of the leaf-level components are found, their bounds are stored into a list which converts the bounds to sets of tupleswhich are used 
+Once all of the leaf-level components are found, their bounds are stored into a list which converts the bounds to sets of tuples which are used 
 by the Pillow library to draw yellow boxes using these bounds. After all of the important bounds have been highlighted, the new annotated 
 image is saved into the output directory with the same filename as the original unannotated image.
